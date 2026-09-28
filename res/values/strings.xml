@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Uno Q Control</string>
+    <string name="title_dashboard">Arduino Uno Q Hardware Controller</string>
+    <string name="status_connected">Connected to arduino-router</string>
+    <string name="status_connecting">Connecting...</string>
+    <string name="status_disconnected">Disconnected (/dev/socket/arduino-router.sock)</string>
+    <string name="btn_reconnect">Reconnect</string>
+    <string name="section_digital">Digital Pins (D0 - D13, D20, D21)</string>
+    <string name="section_analog">Analog / GPIO Pins (A0 - A5)</string>
+    <string name="section_leds">Onboard RGB LEDs (STM32)</string>
+    <string name="section_actions">Quick Actions</string>
+    <string name="btn_all_high">All High</string>
+    <string name="btn_all_low">All Low</string>
+    <string name="btn_blink_d13">Blink D13 (x5)</string>
+    <string name="btn_rainbow_leds">Cycle RGB LEDs</string>
+    <string name="section_logs">Communication Log</string>
+    <string name="btn_clear_logs">Clear</string>
+</resources>
