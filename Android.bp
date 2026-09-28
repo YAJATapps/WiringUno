@@ -26,7 +26,6 @@ android_app {
     resource_dirs: ["res"],
     platform_apis: true,
     certificate: "platform",
-    product_specific: true,
     static_libs: [
         "androidx.appcompat_appcompat",
         "androidx.cardview_cardview",
