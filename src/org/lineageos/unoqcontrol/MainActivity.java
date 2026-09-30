@@ -171,12 +171,12 @@ public class MainActivity extends AppCompatActivity implements ArduinoRouterClie
                 for (int i = 0; i < 5; i++) {
                     if (d13 != null) d13.setState(true);
                     routerClient.setPin("D13", true);
-                    mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
+                    mainHandler.post(() -> pinAdapter.notifyPinChanged("D13"));
                     sleep(300);
 
                     if (d13 != null) d13.setState(false);
                     routerClient.setPin("D13", false);
-                    mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
+                    mainHandler.post(() -> pinAdapter.notifyPinChanged("D13"));
                     sleep(300);
                 }
                 logMessage("[ACTION] D13 blink test complete.");
@@ -190,23 +190,29 @@ public class MainActivity extends AppCompatActivity implements ArduinoRouterClie
                 // Turn all off first
                 for (String led : leds) {
                     PinModel p = findPin(led);
-                    if (p != null) p.setState(false);
-                    routerClient.setPin(led, p != null ? p.getHardwareState() : true);
+                    if (p != null) {
+                        p.setState(false);
+                        routerClient.setPin(led, p.getHardwareState());
+                        mainHandler.post(() -> pinAdapter.notifyPinChanged(led));
+                    }
                 }
-                mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
                 sleep(200);
 
                 // Cycle each one
                 for (String led : leds) {
                     PinModel p = findPin(led);
-                    if (p != null) p.setState(true);
-                    routerClient.setPin(led, p != null ? p.getHardwareState() : false);
-                    mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
+                    if (p != null) {
+                        p.setState(true);
+                        routerClient.setPin(led, p.getHardwareState());
+                        mainHandler.post(() -> pinAdapter.notifyPinChanged(led));
+                    }
                     sleep(350);
 
-                    if (p != null) p.setState(false);
-                    routerClient.setPin(led, p != null ? p.getHardwareState() : true);
-                    mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
+                    if (p != null) {
+                        p.setState(false);
+                        routerClient.setPin(led, p.getHardwareState());
+                        mainHandler.post(() -> pinAdapter.notifyPinChanged(led));
+                    }
                     sleep(150);
                 }
                 logMessage("[ACTION] LED cycle complete.");
@@ -225,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements ArduinoRouterClie
                 routerClient.setPin(pin.getName(), pin.getHardwareState());
             }
         }
-        pinAdapter.notifyAllPinsChanged();
+        mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
     }
 
     private PinModel findPin(String name) {
@@ -248,8 +254,15 @@ public class MainActivity extends AppCompatActivity implements ArduinoRouterClie
 
     @Override
     public void onConnectionStateChanged(boolean connected, String message) {
-        connectionDot.setBackgroundResource(connected ? R.drawable.indicator_dot_green : R.drawable.indicator_dot_red);
-        connectionStatusText.setText(message);
+        mainHandler.post(() -> {
+            if (isFinishing() || isDestroyed()) return;
+            if (connectionDot != null) {
+                connectionDot.setBackgroundResource(connected ? R.drawable.indicator_dot_green : R.drawable.indicator_dot_red);
+            }
+            if (connectionStatusText != null) {
+                connectionStatusText.setText(message);
+            }
+        });
     }
 
     @Override
@@ -263,9 +276,14 @@ public class MainActivity extends AppCompatActivity implements ArduinoRouterClie
     }
 
     private void logMessage(String text) {
-        String timestamp = timeFormat.format(new Date());
-        String line = "[" + timestamp + "] " + text + "\n";
-        logTextView.append(line);
-        logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+        mainHandler.post(() -> {
+            if (isFinishing() || isDestroyed() || logTextView == null) return;
+            String timestamp = timeFormat.format(new Date());
+            String line = "[" + timestamp + "] " + text + "\n";
+            logTextView.append(line);
+            if (logScrollView != null) {
+                logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+            }
+        });
     }
 }

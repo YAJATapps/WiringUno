@@ -234,7 +234,24 @@ public class MessagePackRpc {
         boolean isSuccess = (errByte == 0xC0); // 0xC0 is nil
         String errorMsg = null;
         if (!isSuccess) {
-            errorMsg = "Error code: 0x" + Integer.toHexString(errByte);
+            if ((errByte & 0xE0) == 0xA0) {
+                int strLen = errByte & 0x1F;
+                int readLen = Math.min(strLen, (offset + length) - pos);
+                errorMsg = new String(data, pos, readLen, StandardCharsets.UTF_8);
+                pos += readLen;
+            } else if (errByte == 0xD9 && pos < offset + length) {
+                int strLen = data[pos++] & 0xFF;
+                int readLen = Math.min(strLen, (offset + length) - pos);
+                errorMsg = new String(data, pos, readLen, StandardCharsets.UTF_8);
+                pos += readLen;
+            } else if (errByte == 0xDA && pos + 1 < offset + length) {
+                int strLen = ((data[pos++] & 0xFF) << 8) | (data[pos++] & 0xFF);
+                int readLen = Math.min(strLen, (offset + length) - pos);
+                errorMsg = new String(data, pos, readLen, StandardCharsets.UTF_8);
+                pos += readLen;
+            } else {
+                errorMsg = "Error: 0x" + Integer.toHexString(errByte);
+            }
         }
 
         // Result
@@ -245,7 +262,14 @@ public class MessagePackRpc {
             else if (resByte == 0xC2) result = Boolean.FALSE;
             else if (resByte == 0xC0) result = null;
             else if (resByte <= 0x7F) result = resByte;
-            else result = "0x" + Integer.toHexString(resByte);
+            else if ((resByte & 0xE0) == 0xA0) {
+                int strLen = resByte & 0x1F;
+                int readLen = Math.min(strLen, (offset + length) - pos);
+                result = new String(data, pos, readLen, StandardCharsets.UTF_8);
+                pos += readLen;
+            } else {
+                result = "0x" + Integer.toHexString(resByte);
+            }
         }
 
         return new Response(msgId, isSuccess, errorMsg, result);

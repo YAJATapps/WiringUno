@@ -61,6 +61,15 @@ public class PinAdapter extends RecyclerView.Adapter<PinAdapter.PinViewHolder> {
         notifyDataSetChanged();
     }
 
+    public void notifyPinChanged(String pinName) {
+        for (int i = 0; i < displayedPins.size(); i++) {
+            if (displayedPins.get(i).getName().equals(pinName)) {
+                notifyItemChanged(i);
+                return;
+            }
+        }
+    }
+
     @NonNull
     @Override
     public PinViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -82,10 +91,12 @@ public class PinAdapter extends RecyclerView.Adapter<PinAdapter.PinViewHolder> {
         updateIndicator(holder.indicatorView, pin.getState());
 
         holder.switchView.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            pin.setState(isChecked);
-            updateIndicator(holder.indicatorView, isChecked);
-            if (toggleListener != null) {
-                toggleListener.onPinToggled(pin, isChecked);
+            if (pin.getState() != isChecked) {
+                pin.setState(isChecked);
+                updateIndicator(holder.indicatorView, isChecked);
+                if (toggleListener != null) {
+                    toggleListener.onPinToggled(pin, isChecked);
+                }
             }
         });
     }
