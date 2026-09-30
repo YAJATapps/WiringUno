@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 The LineageOS Project
+ * Copyright (C) 2026 Yajat Kumar <yajatapps3@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.lineageos.unoqcontrol;
+package com.yajatkumar.wiringuno;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -58,6 +61,12 @@ public class MainActivity extends AppCompatActivity implements ArduinoRouterClie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.coordinator_layout), (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return windowInsets;
+        });
 
         initViews();
         setupPinData();
@@ -164,22 +173,29 @@ public class MainActivity extends AppCompatActivity implements ArduinoRouterClie
         findViewById(R.id.btn_all_high).setOnClickListener(v -> setBatchPins(true));
         findViewById(R.id.btn_all_low).setOnClickListener(v -> setBatchPins(false));
 
-        findViewById(R.id.btn_blink_d13).setOnClickListener(v -> {
-            logMessage("[ACTION] Starting D13 blink test (5 cycles)...");
+        findViewById(R.id.btn_blink_all).setOnClickListener(v -> {
+            logMessage("[ACTION] Starting Blink All test (3 cycles)...");
             new Thread(() -> {
-                PinModel d13 = findPin("D13");
-                for (int i = 0; i < 5; i++) {
-                    if (d13 != null) d13.setState(true);
-                    routerClient.setPin("D13", true);
-                    mainHandler.post(() -> pinAdapter.notifyPinChanged("D13"));
-                    sleep(300);
+                for (int cycle = 0; cycle < 3; cycle++) {
+                    logMessage("[ACTION] Blink Cycle " + (cycle + 1) + " - ALL ON");
+                    for (PinModel pin : allPins) {
+                        pin.setState(true);
+                        routerClient.setPin(pin.getName(), pin.getHardwareState());
+                        sleep(5);
+                    }
+                    mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
+                    sleep(450);
 
-                    if (d13 != null) d13.setState(false);
-                    routerClient.setPin("D13", false);
-                    mainHandler.post(() -> pinAdapter.notifyPinChanged("D13"));
-                    sleep(300);
+                    logMessage("[ACTION] Blink Cycle " + (cycle + 1) + " - ALL OFF");
+                    for (PinModel pin : allPins) {
+                        pin.setState(false);
+                        routerClient.setPin(pin.getName(), pin.getHardwareState());
+                        sleep(5);
+                    }
+                    mainHandler.post(() -> pinAdapter.notifyAllPinsChanged());
+                    sleep(450);
                 }
-                logMessage("[ACTION] D13 blink test complete.");
+                logMessage("[ACTION] Blink All test complete.");
             }).start();
         });
 

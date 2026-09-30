@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2026 The LineageOS Project
+// Copyright (C) 2026 Yajat Kumar <yajatapps3@gmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package {
 }
 
 android_app {
-    name: "UnoQControl",
+    name: "WiringUno",
     srcs: [
         "src/**/*.java",
     ],

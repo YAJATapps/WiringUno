@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 The LineageOS Project
+ * Copyright (C) 2026 Yajat Kumar <yajatapps3@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.lineageos.unoqcontrol;
+package com.yajatkumar.wiringuno;
 
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
@@ -46,7 +46,8 @@ public class ArduinoRouterClient {
 
     private final Listener listener;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService sendExecutor = Executors.newSingleThreadExecutor();
+    private Thread connectionThread;
 
     private LocalSocket socket;
     private OutputStream outputStream;
@@ -62,25 +63,29 @@ public class ArduinoRouterClient {
 
     public void start() {
         if (isRunning.compareAndSet(false, true)) {
-            ioExecutor.submit(this::connectionLoop);
+            connectionThread = new Thread(this::connectionLoop, "ArduinoRouter-Conn");
+            connectionThread.setDaemon(true);
+            connectionThread.start();
         }
     }
 
     public void stop() {
         isRunning.set(false);
         closeSocket();
+        if (connectionThread != null) {
+            connectionThread.interrupt();
+            connectionThread = null;
+        }
+        sendExecutor.shutdownNow();
     }
 
     public void reconnect() {
-        ioExecutor.submit(() -> {
-            closeSocket();
-            connectSocket();
-        });
+        sendExecutor.submit(this::closeSocket);
     }
 
     public void setPin(String pinName, boolean hardwareState) {
         int msgId = msgIdCounter.getAndIncrement();
-        ioExecutor.submit(() -> {
+        sendExecutor.submit(() -> {
             if (!isConnected.get() || outputStream == null) {
                 postLog("[ERR] Cannot send: not connected to " + SOCKET_PATH);
                 return;
@@ -169,8 +174,13 @@ public class ArduinoRouterClient {
         }
     }
 
-    private void closeSocket() {
+    private synchronized void closeSocket() {
         isConnected.set(false);
+        try {
+            if (socket != null) socket.close();
+        } catch (Exception ignored) {}
+        socket = null;
+
         try {
             if (outputStream != null) outputStream.close();
         } catch (Exception ignored) {}
@@ -180,11 +190,6 @@ public class ArduinoRouterClient {
             if (inputStream != null) inputStream.close();
         } catch (Exception ignored) {}
         inputStream = null;
-
-        try {
-            if (socket != null) socket.close();
-        } catch (Exception ignored) {}
-        socket = null;
     }
 
     private void postConnectionState(boolean connected, String message) {

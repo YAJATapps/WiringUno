@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.UnoQControl" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.WiringUno" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/arduino_teal</item>
         <item name="colorPrimaryDark">@color/arduino_teal_dark</item>
         <item name="colorSecondary">@color/arduino_teal_light</item>

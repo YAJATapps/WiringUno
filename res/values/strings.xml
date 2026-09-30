@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Uno Q Control</string>
-    <string name="title_dashboard">Arduino Uno Q Hardware Controller</string>
+    <string name="app_name">WiringUno</string>
+    <string name="title_dashboard">WiringUno Hardware Controller</string>
     <string name="status_connected">Connected to arduino-router</string>
     <string name="status_connecting">Connecting...</string>
     <string name="status_disconnected">Disconnected (/dev/socket/arduino-router.sock)</string>

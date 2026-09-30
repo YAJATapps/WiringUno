@@ -3,13 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/background_dark">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:background="@color/surface_dark">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -18,7 +22,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@string/app_name"
             app:titleTextColor="@color/text_primary"
-            app:subtitle="Arduino Uno Q (LineageOS 23.2)"
+            app:subtitle="Arduino Uno Q"
             app:subtitleTextColor="@color/arduino_teal_light" />
 
         <!-- Connection Status Banner -->
@@ -160,12 +164,12 @@
                             app:cornerRadius="6dp" />
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_blink_d13"
+                            android:id="@+id/btn_blink_all"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="4dp"
-                            android:text="Blink D13"
+                            android:text="Blink All"
                             android:textSize="11sp"
                             style="@style/Widget.Material3.Button.TonalButton"
                             app:cornerRadius="6dp" />
@@ -248,7 +252,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="monospace"
-                            android:text="[Ready] UnoQControl initialized.\n"
+                            android:text="[Ready] WiringUno initialized.\n"
                             android:textColor="#39FF14"
                             android:textSize="10sp" />
                     </ScrollView>
